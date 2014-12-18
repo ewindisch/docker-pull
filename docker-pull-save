@@ -1,0 +1,4 @@
+#!/bin/sh
+docker -d -b none -s vfs 2>/dev/null >/dev/null & sleep 1
+docker pull $1 2>/dev/null >/dev/null &&
+docker save $1
