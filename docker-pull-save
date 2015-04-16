@@ -1,7 +1,10 @@
 #!/bin/sh
 DOCKER_OPTS=""
-while getopt --long insecure,insecure-registry: -- "$@"; do
-  case $opt in
+NAME=$(basename $0)
+ARGS=$(getopt -n "$NAME" --long insecure,insecure-registry: -- $0 $@)
+eval set -- $ARGS
+while [ $# -gt 0 ]; do
+  case "$1" in
     --insecure)
       DOCKER_OPTS="${DOCKER_OPTS} --insecure-registry='0.0.0.0/8'"
       ;;
@@ -9,9 +12,14 @@ while getopt --long insecure,insecure-registry: -- "$@"; do
       DOCKER_OPTS="${DOCKER_OPTS} --insecure-registry='${2}'"
       shift
       ;;
+    --)
+      IMAGE="$@"
+      ;;
   esac
+  shift
 done
 
-docker -d -b none -s vfs $DOKCER_OPTS 2>/dev/null >/dev/null & sleep 1
-docker pull $1 2>/dev/null >/dev/null &&
-docker save $1
+docker -d -b none -s vfs $DOCKER_OPTS 2>/dev/null >/dev/null &
+sleep 1
+docker pull $IMAGE 2>/dev/null >/dev/null &&
+docker save $IMAGE | cat
